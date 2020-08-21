@@ -10,4 +10,5 @@ DEBUG = True
 
 
 # TODO IMPLEMENT DATABASE URL
-SQLALCHEMY_DATABASE_URI = '<Put your local database url>'
+# SQLALCHEMY_DATABASE_URI ="postgres://wtufwwks:JM9TJYtSDFIdBXi7Y9XYl78PRD7dPK5a@kandula.db.elephantsql.com:5432/wtufwwks"
+SQLALCHEMY_DATABASE_URI = '"postgres://root:YouMayPass@localhost:5432/Fyyr";'

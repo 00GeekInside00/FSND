@@ -30,7 +30,10 @@ db = SQLAlchemy(app)
 
 
 # TODO: connect to a local postgresql database
-app.config['SQLALCHEMY_DATABASE_URI']=f"postgres://wtufwwks:JM9TJYtSDFIdBXi7Y9XYl78PRD7dPK5a@kandula.db.elephantsql.com:5432/wtufwwks"
+# test cloud db
+# app.config['SQLALCHEMY_DATABASE_URI']="postgres://wtufwwks:JM9TJYtSDFIdBXi7Y9XYl78PRD7dPK5a@kandula.db.elephantsql.com:5432/wtufwwks"
+# local db
+app.config['SQLALCHEMY_DATABASE_URI']="postgres://root:YouMayPass@localhost:5432/Fyyr";
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
 db = SQLAlchemy(app)
@@ -89,7 +92,7 @@ class Show(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     artist = db.relationship('Artist', backref=db.backref('Shows'))
-    venue_name = db.relationship('Venue', backref=db.backref('Shows'))
+    venu = db.relationship('Venue', backref=db.backref('Shows'))
     venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'), nullable=False)
     artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'), nullable=False)
     start_time = db.Column(db.DateTime, nullable=False)   
@@ -470,10 +473,10 @@ def show_artist(artist_id):
         "phone":item.phone,
         "seeking_venue":item.seeking_venue,
         "image_link":item.image_link,
-        "past_shows":[{'venue_id':show.venue_id, 'venue_name': show.venue_name.name,'venue_image_link': show.venue_name.image_link,'start_time': format_datetime(str(show.start_time))}for show in Show.query.filter_by(artist_id=artist_id).filter(Show.start_time < datetime.now())],
-        "upcoming_shows":[{'venue_id':show.venue_id, 'venue_name': show.venue_name.name,'venue_image_link': show.venue_name.image_link,'start_time': format_datetime(str(show.start_time))}for show in Show.query.filter_by(artist_id=artist_id).filter(Show.start_time > datetime.now())],
-        "past_shows_count":len([{'venue_id':show.venue_id, 'venue_name': show.venue_name.name,'venue_image_link': show.venue_name.image_link,'start_time': format_datetime(str(show.start_time))}for show in Show.query.filter_by(artist_id=artist_id).filter(Show.start_time < datetime.now())]),
-        "upcoming_shows_count":len([{'venue_id':show.venue_id, 'venue_name': show.venue_name.name,'venue_image_link': show.venue_name.image_link,'start_time': format_datetime(str(show.start_time))}for show in Show.query.filter_by(artist_id=artist_id).filter(Show.start_time > datetime.now())])}for item in Artist.query.filter_by(id=artist_id)]
+        "past_shows":[{'venue_id':show.venue_id, 'venue_name': show.venu.name,'venue_image_link': show.venu.image_link,'start_time': format_datetime(str(show.start_time))}for show in Show.query.filter_by(artist_id=artist_id).filter(Show.start_time < datetime.now())],
+        "upcoming_shows":[{'venue_id':show.venue_id, 'venue_name': show.venu.name,'venue_image_link': show.venu.image_link,'start_time': format_datetime(str(show.start_time))}for show in Show.query.filter_by(artist_id=artist_id).filter(Show.start_time > datetime.now())],
+        "past_shows_count":len([{'venue_id':show.venue_id, 'venue_name': show.venu.name,'venue_image_link': show.venu.image_link,'start_time': format_datetime(str(show.start_time))}for show in Show.query.filter_by(artist_id=artist_id).filter(Show.start_time < datetime.now())]),
+        "upcoming_shows_count":len([{'venue_id':show.venue_id, 'venue_name': show.venu.name,'venue_image_link': show.venu.image_link,'start_time': format_datetime(str(show.start_time))}for show in Show.query.filter_by(artist_id=artist_id).filter(Show.start_time > datetime.now())])}for item in Artist.query.filter_by(id=artist_id)]
 
   return render_template('pages/show_artist.html', artist=data[0])
 
@@ -695,8 +698,8 @@ def shows():
   #   "start_time": "2035-04-15T20:00:00.000Z"
   # }]
   data=[{
-    'venue_id':show.venue_name.id,
-    'venue_name':show.venue_name.name,
+    'venue_id':show.venu.id,
+    'venue_name':show.venu.name,
     'artist_id':show.artist_id,
     'artist_name':show.artist.name,
     'artist_image_link':show.artist.image_link,
