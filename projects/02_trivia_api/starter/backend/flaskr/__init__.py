@@ -16,17 +16,31 @@ def create_app(test_config=None):
   '''
   @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
   '''
-
+  #allowing origins for any url using the regex r"*"
+  CORS(app, resources={r"/*": {"origins": "*"}})
   '''
   @TODO: Use the after_request decorator to set Access-Control-Allow
   '''
+  @app.after_request
+  def after_request(response):
+    response.headers.add('Access-Control-Allow-Headers','Content-Type,Authorization,true')
+    response.headers.add('Access-Control-Allow-Methods','GET,PUT,POST,DELETE,OPTIONS,PATCH')
 
+    return response
   '''
   @TODO: 
   Create an endpoint to handle GET requests 
   for all available categories.
   '''
-
+  @app.route("/categories")
+  def get_categories():
+    category=Category.query.all()
+    formated_response=[category_item.format() for category_item in category]
+    return jsonify({
+      'categories':formated_response,
+      'total_categories':len(formated_response),
+      
+      })
 
   '''
   @TODO: 
@@ -40,6 +54,22 @@ def create_app(test_config=None):
   ten questions per page and pagination at the bottom of the screen for three pages.
   Clicking on the page numbers should update the questions. 
   '''
+  @app.route("/questions")
+  def get_paginated_questions():
+    question=Question.query.all()
+    category=Category.query.all()
+    page = request.args.get('page', 1, type=int)
+    start= (page - 1)*QUESTIONS_PER_PAGE
+    end=start+QUESTIONS_PER_PAGE
+    formated_response=[question_item.format() for question_item in question]
+    category_formated_response=[category_item.format() for category_item in category]
+    return jsonify({
+      'questions':formated_response[start:end],
+      'total_questions':len(formated_response[start:end]),
+      'categories':category_formated_response,
+      'current_category':'TBD',
+      'page':page
+      })
 
   '''
   @TODO: 
@@ -48,6 +78,11 @@ def create_app(test_config=None):
   TEST: When you click the trash icon next to a question, the question will be removed.
   This removal will persist in the database and when you refresh the page. 
   '''
+  @app.route("/questions/<int:question_id>",methods=['DELETE'])
+  def delete_questions(question_id):
+    question=Question.query.get(question_id)
+    question.delete()
+    return jsonify({"success":True})
 
   '''
   @TODO: 
@@ -59,6 +94,18 @@ def create_app(test_config=None):
   the form will clear and the question will appear at the end of the last page
   of the questions list in the "List" tab.  
   '''
+  @app.route("/questions",methods=['POST'])
+  def new_question():
+    response=request.json
+    question= response['question']
+    answer= response['answer']
+    category=response['category']
+    difficulty=response['difficulty']
+    new_question=Question(question=question, answer=answer, category=category, difficulty=difficulty)
+    new_question.insert()
+    return jsonify({
+      'Success':True,
+    })
 
   '''
   @TODO: 
@@ -70,6 +117,19 @@ def create_app(test_config=None):
   only question that include that string within their question. 
   Try using the word "title" to start. 
   '''
+  @app.route("/questions/search",methods=['POST'])
+  def search_questions():
+    response=request.json
+    term= response['searchTerm']
+    print(term)
+    questions= Question.query.filter(question.ilike(f'%{term}%')).all()
+    formated_response=[question_item.format() for question_item in questions]
+    
+    return jsonify({
+      'questions':formated_response,
+      'total_questions':len(formated_response),
+      'current_category':"TBD"
+    })
 
   '''
   @TODO: 
