@@ -26,12 +26,6 @@ class TriviaTestCase(unittest.TestCase):
             self.db.create_all()
 
         # Variables To Help in Tests
-        self.empty_question = {
-            'question': '',
-            'answer': '',
-            'category': 1,
-            'difficulty': 1
-        }
         self.new_question = {
             'question': 'How many Pyramids Are There In Egypt?',
             'answer': '108',

@@ -3,9 +3,9 @@ from sqlalchemy import Column, String, Integer, create_engine
 from flask_sqlalchemy import SQLAlchemy
 import json
 
-# database_name = "trivia"
-# database_path = "postgres://{}/{}".format('localhost:5432', database_name)
-database_path="postgres://wtufwwks:JM9TJYtSDFIdBXi7Y9XYl78PRD7dPK5a@kandula.db.elephantsql.com:5432/wtufwwks"
+database_name = "trivia_udacity"
+database_path = "postgres://{}/{}".format('localhost:5432', database_name)
+# database_path="postgres://wtufwwks:JM9TJYtSDFIdBXi7Y9XYl78PRD7dPK5a@kandula.db.elephantsql.com:5432/wtufwwks"
 
 db = SQLAlchemy()
 
