@@ -1,10 +1,11 @@
 import os
 from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from  sqlalchemy.sql.expression import func
 from flask_cors import CORS
 import random
 
-from models import setup_db, Question, Category
+from models import setup_db, Question, Category,db
 
 QUESTIONS_PER_PAGE = 10
 
@@ -38,8 +39,7 @@ def create_app(test_config=None):
       formated_response={str(category_item.id):category_item.type for category_item in category}
       return jsonify({
       'categories':formated_response,
-      'total_categories':len(formated_response),
-      'success': True
+      'total_categories':len(formated_response)
       })
     except:
       abort(422)
@@ -72,15 +72,17 @@ def create_app(test_config=None):
       abort(405)
     try:
       categories = {str(category_item.id):category_item.type for category_item in category}
-      return jsonify({
-            'success': True,
-            'questions': questions[start:end],
-            'totalQuestions': questions_count,
-            'categories': categories,
-            'page':page
-            })
-    except:
-      abort(422)
+      if questions[start:end]:
+        return jsonify({
+              'questions': questions[start:end],
+              'totalQuestions': questions_count,
+              'categories': categories,
+              'page':page
+              })
+      else:
+        abort(404)
+    except Exception as e:
+      abort(404)
   '''
   Endpoint to DELETE question using a question ID. 
 
@@ -90,8 +92,11 @@ def create_app(test_config=None):
   @app.route("/questions/<int:question_id>",methods=['DELETE'])
   def delete_questions(question_id):
     question=Question.query.get(question_id)
-    question.delete()
-    return jsonify({"success":True})
+    if question:
+      question.delete()
+      return jsonify({"delete_id":question_id})
+    else:
+      abort(404)
 
   '''
   Endpoint to POST a new question, 
@@ -104,22 +109,21 @@ def create_app(test_config=None):
   '''
   @app.route("/questions",methods=['POST'])
   def new_question():
+    response={}
     try:
       response=request.json
+      question= response['question']
+      answer= response['answer']
+      category=response['category']
+      difficulty=response['difficulty']
     except:
       abort(405)
     
-    question= response['question']
-    answer= response['answer']
-    category=response['category']
-    difficulty=response['difficulty']
     try:
       new_question=Question(question=question, answer=answer, category=category, difficulty=difficulty)
       new_question.insert()
-      return jsonify({
-      'Success':True,
-      })
-    except:
+      return jsonify(request.json)
+    except Exception as e:
       abort(422)
 
   '''
@@ -135,19 +139,24 @@ def create_app(test_config=None):
   def search_questions():
     try:
       response=request.json
+      term= response['searchTerm']
     except:
       abort(405)
-    term= response['searchTerm']
+    questions=None
+    # Catch if the query failed unexpectedly
     try:
       questions= Question.query.filter(Question.question.ilike(f'%{term}%')).all()
-      formated_response=[question_item.format() for question_item in questions]
-      return jsonify({
-        'questions':formated_response,
-        'total_questions':len(formated_response)
-      })
     except:
       abort(422)
-
+    formated_response=[question_item.format() for question_item in questions]
+    if len(formated_response):
+      return jsonify({
+          'questions':formated_response,
+          'total_questions':len(formated_response)
+      })
+    else:
+      abort(404)
+    
   '''
   @Endpoint to get questions based on category. 
 
@@ -155,7 +164,7 @@ def create_app(test_config=None):
   categories in the left column will cause only questions of that 
   category to be shown. 
   '''
-  # http://localhost:5000/categories/4/questions
+
   @app.route("/categories/<int:category_id>/questions")
   def questions_by_category(category_id):
     try:
@@ -192,17 +201,20 @@ def create_app(test_config=None):
   def quizes():
     try:
       quiz_category=request.json['quiz_category']['id']
+      #quiz_category: Has TO BE AN INTEGER REFERING TO CATEGORY ID
+      quiz_category=int(quiz_category)
       previous_questions=request.json['previous_questions']
     except:
       # if json payload is invalid
       abort(405)
     if quiz_category!=0:    
-      questions=Question.query.filter_by(category=quiz_category).all()
+      questions=[question.format() for question in db.session.query(Question).filter_by(category=quiz_category).order_by(func.random()).all()]
     else:
-      questions=Question.query.all()
-    
-    questions=[q.format() for q in questions if q.id not in previous_questions]
-    random.shuffle(questions)
+      questions=[question.format() for question in db.session.query(Question).order_by(func.random()).all()]
+      
+    # TODO: REVISE: I am not sure how to use Question.id.in_(previous_questions)
+    questions=[q for q in questions if q['id'] not in previous_questions]
+ 
     if len(questions):
       #Never stop questioning until all questions are passed by
       return jsonify({
