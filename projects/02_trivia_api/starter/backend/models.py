@@ -6,7 +6,6 @@ import json
 database_name = "trivia_udacity"
 database_path = "postgres://{}/{}".format('localhost:5432', database_name)
 
-
 db = SQLAlchemy()
 
 '''
@@ -27,7 +26,7 @@ Question
 class Question(db.Model):  
   __tablename__ = 'questions'
 
-  id = Column(Integer, primary_key=True, autoincrement=True)
+  id = Column(Integer, primary_key=True)
   question = Column(String)
   answer = Column(String)
   category = Column(String)
@@ -66,7 +65,7 @@ Category
 class Category(db.Model):  
   __tablename__ = 'categories'
 
-  id = Column(Integer, primary_key=True, autoincrement=True)
+  id = Column(Integer, primary_key=True)
   type = Column(String)
 
   def __init__(self, type):
