@@ -80,12 +80,123 @@ GET '/categories'
 - Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
 - Request Arguments: None
 - Returns: An object with a single key, categories, that contains a object of id: category_string key:value pairs. 
+
 {'1' : "Science",
 '2' : "Art",
 '3' : "Geography",
 '4' : "History",
 '5' : "Entertainment",
 '6' : "Sports"}
+
+
+GET '/questions'
+
+- Fetches a page of questions and categories.
+- Request Arguments: 'page' as a numrical integer parameter.
+- Response: 
+    an object with the following:
+
+        * "categories" representing key-pair id and category.
+        * "Page": integer representing the current page.
+        * "Questions": an array representing array of questions as objects.
+        * "totalQuestions": integer represing the total number of questions.
+{
+  "categories": {
+    "1": "Science", 
+    "2": "Art", 
+    "3": "Geography", 
+    "4": "History", 
+    "5": "Entertainment", 
+    "6": "Sports"
+  }, 
+  "page": 1, 
+  "questions": [
+    {
+      "answer": "8", 
+      "category": "1", 
+      "difficulty": 1, 
+      "id": 1, 
+      "question": "How many arms ouctopos has"
+    }, 
+    {
+      "answer": "31", 
+      "category": "1", 
+      "difficulty": 1, 
+      "id": 12, 
+      "question": "How many days in October?"
+    }
+  ], 
+  "totalQuestions": 2
+}
+
+
+DELETE /questions/<int:question_id>
+
+- Deletes a question using its ID
+- Request Arguments: 'question_id' as a numrical integer parameter.
+
+POST /questions
+- Adds a new question
+- Request Arguments: It takes the following Json payload in the body of the request:
+    * question: represnts question string.
+    * answer: represnts questions answer.
+    * difficulty: takes difficulty level.
+    * category: takes category id.
+
+    {
+        "question":"How many players in a football team?",
+        "answer":"11 Players in every team",
+        "difficulty":2,
+        "category":4
+    }
+
+POST /questions/search
+
+- Search for question using a search term
+- Requst Arguments: It takes the following Json payload in the body of the request:
+    *"searchTerm": takes the string to search for.
+
+    {
+        "searchTerm":"man"
+    }
+
+
+GET /categories/<int:category_id>/questions
+
+- Fetches questions with certain category.
+- Request Arguments: category_id represents the category id stored
+
+POST /quizzes
+
+- Starts a quiz retriving all questions or by filtering them by category
+- Request Arguments: It takes the following Json payload in the body of the request:
+    *"previous_questions": an array which stores questions asked.
+    *"quiz_category": an object representing a category.
+
+    {
+        "previous_questions":[],
+        "quiz_category":{
+            "type":"Science",
+            "id":"1"
+            }
+    }
+
+- Response: It returns questions as per the following structure:
+    * "question": represents a question to be asked as an object containing :
+        *id: question id.
+        *question : question body string.
+        *answer : the correct answer.
+        *category: category id.
+        *difficulty: diffeculty level.
+    { 
+        "question": { 
+            "id": 1,
+            "question": "How many arms ouctopos has"
+            "answer": "8",
+            "category": "1",
+            "difficulty": 1,
+             } 
+    }
 
 ```
 

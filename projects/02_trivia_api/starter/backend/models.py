@@ -3,9 +3,12 @@ from sqlalchemy import Column, String, Integer, create_engine
 from flask_sqlalchemy import SQLAlchemy
 import json
 
-database_name = "trivia_udacity"
-database_path = "postgres://{}/{}".format('localhost:5432', database_name)
+# database_name = "trivia_udacity"
+# database_path = "postgres://{}/{}".format('localhost:5432', database_name)
+
 # database_path="postgres://wtufwwks:JM9TJYtSDFIdBXi7Y9XYl78PRD7dPK5a@kandula.db.elephantsql.com:5432/wtufwwks"
+# database_path = "postgres://nrsdyucjnfhenp:4c17438a512b2a307923e5464f2ec1ad4c677d8e3cc77a26d826673e0a677170@ec2-54-217-213-79.eu-west-1.compute.amazonaws.com:5432/d9ll3obff1cu1u" 
+database_path = "postgres://nrsdyucjnfhenp:4c17438a512b2a307923e5464f2ec1ad4c677d8e3cc77a26d826673e0a677170@ec2-54-217-213-79.eu-west-1.compute.amazonaws.com:5432/d9ll3obff1cu1u" 
 
 db = SQLAlchemy()
 
@@ -27,7 +30,7 @@ Question
 class Question(db.Model):  
   __tablename__ = 'questions'
 
-  id = Column(Integer, primary_key=True)
+  id = Column(Integer, primary_key=True, autoincrement=True)
   question = Column(String)
   answer = Column(String)
   category = Column(String)
@@ -66,7 +69,7 @@ Category
 class Category(db.Model):  
   __tablename__ = 'categories'
 
-  id = Column(Integer, primary_key=True)
+  id = Column(Integer, primary_key=True, autoincrement=True)
   type = Column(String)
 
   def __init__(self, type):
